@@ -44,7 +44,7 @@ healthcare assistance.
   <li>HTML</li>
   <li>CSS</li>
   <li>JavaScript</li>
-  <li>MySQL</li>
+  <li>SQLlite</li>
   <li>Geolocation APIs</li>
 </ul>
 
