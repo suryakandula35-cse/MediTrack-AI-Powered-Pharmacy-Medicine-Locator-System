@@ -1,9 +1,10 @@
 <h1>🏥 MediTrack - Intelligent Pharmacy & Medicine Locator System</h1>
 
 <p>
-MediTrack is a smart healthcare platform designed to improve medicine accessibility using 
-Machine Learning and Geolocation services. The system helps users search for medicines, 
-find nearby pharmacies, and view medicine availability in real time.
+MediTrack is a smart healthcare platform designed to improve medicine accessibility using
+<strong>Machine Learning</strong> and <strong>Geolocation services</strong>. The system helps users
+search for medicines, find nearby pharmacies, and view medicine availability in real time.
+It also includes a symptom-based disease prediction module to provide preliminary health support.
 </p>
 
 <hr>
@@ -11,9 +12,16 @@ find nearby pharmacies, and view medicine availability in real time.
 <h2>📌 Project Overview</h2>
 
 <p>
-The project integrates pharmacy management, medicine search, geolocation tracking, and 
-symptom-based disease prediction into a single platform. It supports users, shopkeepers, 
-and administrators through role-based access control.
+This project integrates pharmacy management, medicine search, geolocation tracking, and
+symptom-based disease prediction into a single platform. It is built to support
+<strong>users</strong>, <strong>shopkeepers</strong>, and <strong>administrators</strong> through
+role-based access control, making the system organized, secure, and easy to use.
+</p>
+
+<p>
+The main goal of MediTrack is to reduce the difficulty of finding medicines and nearby pharmacies,
+while also helping shopkeepers manage inventory efficiently and providing users with smart
+healthcare assistance.
 </p>
 
 <h2>🎯 Objectives</h2>
@@ -54,9 +62,15 @@ and administrators through role-based access control.
 <h2>⚙️ Machine Learning Module</h2>
 
 <p>
-The symptom checker module uses Natural Language Processing techniques such as 
-text preprocessing and TF-IDF vectorization. Logistic Regression is used to predict 
-possible diseases based on user-entered symptoms.
+The symptom checker module uses <strong>Natural Language Processing</strong> techniques such as
+text preprocessing and TF-IDF vectorization. The cleaned symptom input is converted into numerical
+features and passed to a <strong>Logistic Regression</strong> model, which predicts the most likely
+disease based on user-entered symptoms.
+</p>
+
+<p>
+This module is designed to give preliminary guidance, helping users understand possible health
+conditions before visiting a doctor or pharmacist.
 </p>
 
 <h2>📊 System Workflow</h2>
@@ -83,10 +97,4 @@ possible diseases based on user-entered symptoms.
 <p>
 <strong>Kandula Durga Surya Sai</strong><br>
 B.Tech - Computer Science and Engineering
-</p>
-
-<hr>
-
-<p>
-⭐ If you found this project useful, give it a star on GitHub!
 </p>
