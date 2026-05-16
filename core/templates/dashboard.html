@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="hero-section text-center p-5 mb-5 glass-card">
+        <div class="floating-shapes">
+            <div class="floating-shape shape-1"></div>
+            <div class="floating-shape shape-2"></div>
+            <div class="floating-shape shape-3"></div>
+        </div>
+        <h1 class="display-4 fw-bold">Hello, {{ user.username|capfirst }}!</h1>
+        <p class="lead text-muted">What would you like to do today?</p>
+    </div>
+
+    {% if user.role == 'client' %}
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Search for Medicines</h5>
+                    <p class="card-text">Find pharmacies near you that have the medicine you need. Fast, easy, and reliable.</p>
+                    <a href="{% url 'search' %}" class="btn btn-primary">Start Search</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">MediTrack SYMPTOM CHECKER</h5>
+                    <p class="card-text">Not sure what's wrong? Use our AI-powered tool to check your symptoms and get a possible diagnosis.</p>
+                    <a href="{% url 'disease_prediction' %}" class="btn btn-outline-primary">Check Symptoms</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% elif user.role == 'shopkeeper' %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Medicine Inventory Management</h5>
+                    <p class="card-text">Add, update, or remove medicines from your shop's inventory.</p>
+                    <a href="{% url 'medicine_management' %}" class="btn btn-primary">Manage Inventory</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+</div>
+{% endblock %}

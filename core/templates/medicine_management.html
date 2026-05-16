@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-4 px-4">
+    <div class="inventory-hero-section text-center p-5 mb-5">
+        <div class="floating-shapes">
+            <div class="floating-shape shape-1"></div>
+            <div class="floating-shape shape-2"></div>
+            <div class="floating-shape shape-3"></div>
+        </div>
+        <h1 class="display-5 fw-bold text-dark">Manage Your Inventory</h1>
+        <p class="lead text-dark">Add discounts, update stock levels, and manage your medicine inventory.</p>
+    </div>
+
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% else %}
+        <div class="row">
+            <!-- Left Sidebar (col-md-4) -->
+            <div class="col-md-4 mb-4">
+                
+                <!-- Shop Status Card -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-shop-window me-2"></i>Shop Status</h5>
+                        {% if shop.is_open %}
+                            <p>Your shop is currently <span class="fw-bold text-success">Open</span>.</p>
+                            <form method="post" action="{% url 'toggle_shop_status' %}" class="d-grid">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning">Mark as Closed</button>
+                            </form>
+                        {% else %}
+                            <p>Your shop is currently <span class="fw-bold text-danger">Closed</span>.</p>
+                            <form method="post" action="{% url 'toggle_shop_status' %}" class="d-grid">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">Mark as Open</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Bulk Discount Card -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-percent me-2"></i>Bulk Discount</h5>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="input-group mb-3">
+                                <input type="number" 
+                                       name="bulk_discount" 
+                                       id="bulk-discount-input"
+                                       min="0" 
+                                       max="100" 
+                                       step="0.01" 
+                                       class="form-control" 
+                                       placeholder="Discount %" 
+                                       value="0">
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <p class="small text-muted">Apply discount to all medicines and preview changes live below.</p>
+                            <div class="d-grid">
+                                <button type="submit" 
+                                        name="apply_bulk_discount" 
+                                        class="btn btn-primary" 
+                                        value="true">
+                                    <i class="bi bi-check-circle me-2"></i>Apply to All
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column (col-md-8) - Medicine Table -->
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">
+                            <i class="bi bi-box-seam me-2"></i>Current Inventory
+                            {% if num_pages > 1 %}
+                                <span class="badge bg-secondary ms-2">Page {{ page }} of {{ num_pages }}</span>
+                            {% endif %}
+                        </h5>
+                        
+                        {% if medicines %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Medicine</th>
+                                            <th class="text-center">Default ₹</th>
+                                            <th class="text-center">Discount %</th>
+                                            <th class="text-center">Effective ₹</th>
+                                            <th class="text-center">Stock</th>
+                                            <th class="text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for medicine in medicines %}
+                                            <form method="post" class="medicine-row-form" data-default-price="{{ medicine.default_price|default:0 }}">
+                                                {% csrf_token %}
+                                                <tr>
+                                                    <td>
+                                                        <input type="hidden" name="medicine_id" value="{{ medicine.id|default:'' }}">
+                                                        <input type="hidden" name="medicine_name" value="{{ medicine.name }}">
+                                                        <span class="fw-bold">{{ medicine.name }}</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {% if medicine.default_price %}
+                                                            <span class="badge bg-info">₹ {{ medicine.default_price }}</span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary">N/A</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="number" 
+                                                               name="discount" 
+                                                               class="discount-input form-control form-control-sm" 
+                                                               min="0" 
+                                                               max="100" 
+                                                               step="0.01" 
+                                                               value="{{ medicine.discount|default:0 }}"
+                                                               style="width: 80px; margin: 0 auto;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {% if medicine.default_price %}
+                                                            <span class="effective-price badge bg-success">₹ {{ medicine.price|default:medicine.default_price }}</span>
+                                                        {% else %}
+                                                            <span class="effective-price badge bg-secondary">—</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="number" 
+                                                               name="quantity" 
+                                                               class="quantity-input form-control form-control-sm" 
+                                                               min="0" 
+                                                               value="{{ medicine.quantity|default:'' }}"
+                                                               placeholder="—"
+                                                               style="width: 70px; margin: 0 auto;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button type="submit" 
+                                                                name="update_medicine" 
+                                                                value="true" 
+                                                                class="btn btn-sm btn-success me-2"
+                                                                title="Save changes">
+                                                            <i class="bi bi-check-circle"></i>
+                                                        </button>
+                                                        {% if medicine.id %}
+                                                            <button type="submit" 
+                                                                    name="delete_medicine" 
+                                                                    value="true" 
+                                                                    class="btn btn-sm btn-danger"
+                                                                    title="Delete medicine"
+                                                                    onclick="return confirm('Delete this medicine?');">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            </form>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            {% if num_pages > 1 %}
+                                <nav class="mt-4">
+                                    <ul class="pagination justify-content-center">
+                                        {% for p in page_range %}
+                                            <li class="page-item {% if p == page %}active{% endif %}">
+                                                <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </nav>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-center text-muted mt-3">No medicines to display.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- JavaScript for Real-Time Calculations -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const bulkDiscountInput = document.getElementById('bulk-discount-input');
+
+    // Per-row real-time calculation
+    document.querySelectorAll('.discount-input').forEach(function(input) {
+        input.addEventListener('input', function() {
+            calculateRowPrice(this);
+        });
+    });
+
+    // Bulk discount preview - update all rows and prices in real-time
+    if (bulkDiscountInput) {
+        bulkDiscountInput.addEventListener('input', function() {
+            const bulkDiscount = parseFloat(this.value) || 0;
+            
+            // Clamp to 0-100
+            if (bulkDiscount < 0 || bulkDiscount > 100) {
+                this.value = Math.max(0, Math.min(100, bulkDiscount));
+                return;
+            }
+
+            // Update all discount inputs and recalculate prices
+            document.querySelectorAll('.discount-input').forEach(function(input) {
+                input.value = bulkDiscount;
+                calculateRowPrice(input);
+            });
+        });
+    }
+
+    function calculateRowPrice(discountInput) {
+        const form = discountInput.closest('.medicine-row-form');
+        const defaultPrice = parseFloat(form.getAttribute('data-default-price')) || 0;
+        const discount = parseFloat(discountInput.value) || 0;
+        
+        // Validation: clamp discount to 0-100
+        let clampedDiscount = Math.max(0, Math.min(100, discount));
+        if (clampedDiscount !== discount) {
+            discountInput.value = clampedDiscount;
+        }
+
+        // Calculate effective price
+        const effectivePrice = defaultPrice * (1 - clampedDiscount / 100);
+        const effectivePriceSpan = form.querySelector('.effective-price');
+
+        if (defaultPrice > 0) {
+            // Update effective price display
+            effectivePriceSpan.textContent = '₹ ' + effectivePrice.toFixed(2);
+            effectivePriceSpan.classList.remove('bg-secondary');
+            effectivePriceSpan.classList.add('bg-success');
+            
+            // Brief visual feedback (light flash)
+            effectivePriceSpan.style.transition = 'background-color 0.3s ease';
+            effectivePriceSpan.style.backgroundColor = '#d4edda';
+            setTimeout(() => {
+                effectivePriceSpan.style.backgroundColor = '';
+            }, 300);
+        } else {
+            effectivePriceSpan.textContent = '—';
+            effectivePriceSpan.classList.remove('bg-success');
+            effectivePriceSpan.classList.add('bg-secondary');
+        }
+    }
+
+    // Form validation on submit
+    document.querySelectorAll('.medicine-row-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            const discountInput = this.querySelector('.discount-input');
+            const discount = parseFloat(discountInput.value) || 0;
+
+            if (discount < 0 || discount > 100) {
+                e.preventDefault();
+                alert('Discount must be between 0 and 100%.');
+                discountInput.focus();
+                return false;
+            }
+        });
+    });
+
+    // Bulk discount form validation
+    const bulkForm = bulkDiscountInput?.closest('form');
+    if (bulkForm) {
+        bulkForm.addEventListener('submit', function(e) {
+            const bulkDiscount = parseFloat(bulkDiscountInput.value) || 0;
+            
+            if (bulkDiscount < 0 || bulkDiscount > 100) {
+                e.preventDefault();
+                alert('Discount must be between 0 and 100%.');
+                bulkDiscountInput.focus();
+                return false;
+            }
+        });
+    }
+});
+</script>
+
+<style>
+/* Optional: Custom styling for responsive table on small screens */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    .form-control-sm {
+        height: calc(1.5em + 0.5rem + 2px) !important;
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.85rem !important;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.75rem !important;
+    }
+}
+
+.medicine-row-form {
+    display: contents;
+}
+
+.discount-input {
+    text-align: center;
+}
+
+.quantity-input {
+    text-align: center;
+}
+
+.effective-price {
+    display: inline-block;
+    min-width: 100px;
+    transition: background-color 0.3s ease;
+}
+
+.badge {
+    font-weight: 500;
+}
+</style>
+{% endblock %}

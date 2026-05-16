@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="hero-section text-center p-5 mb-5 glass-card">
+        <div class="floating-shapes">
+            <div class="floating-shape shape-1"></div>
+            <div class="floating-shape shape-2"></div>
+            <div class="floating-shape shape-3"></div>
+        </div>
+        <h1 class="display-4 fw-bold">Find Your Medicine</h1>
+        <p class="lead text-muted">Search for medicines available in pharmacies near you.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="glass-card mb-5">
+                <form action="{% url 'search' %}" method="get">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" name="medicine_name" class="form-control form-control-lg" placeholder="Enter medicine name..." value="{{ query }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" id="location-input" name="location" class="form-control form-control-lg" placeholder="Enter your location..." value="{{ location }}" required>
+                        </div>
+                    </div>
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-2"></i>Search</button>
+                    </div>
+                </form>
+            </div>
+
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+
+            {% if request.GET.medicine_name %}
+                {% if results %}
+                    <h3 class="mb-4">Search Results for "{{ query }}" in "{{ location }}"</h3>
+                    {% for result in results %}
+                        {% if result.medicine.quantity and result.medicine.price %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="card-title mb-1"><i class="bi bi-capsule-pill me-2"></i>{{ result.medicine.name }}</h5>
+                                            <p class="card-text text-primary fw-bold mb-1"><i class="bi bi-shop me-2"></i>{{ result.medicine.shop.name }}</p>
+                                            <p class="card-text text-muted"><small><i class="bi bi-geo-alt-fill me-2"></i>{{ result.medicine.shop.address }}</small></p>
+                                            <p class="card-text mb-1"><span class="fw-bold">Stock:</span> {{ result.medicine.quantity }}</p>
+                                            <div class="d-flex align-items-center gap-2">
+                                                {% if result.medicine.default_price and result.medicine.discount > 0 %}
+                                                    <div>
+                                                        <p class="card-text mb-0">
+                                                            <span class="fw-bold text-muted" style="text-decoration: line-through; font-size: 0.9rem;">MRP: ₹{{ result.medicine.default_price }}</span>
+                                                        </p>
+                                                        <p class="card-text mb-0">
+                                                            <span class="fw-bold text-success" style="font-size: 1.2rem;">₹{{ result.medicine.price }}</span>
+                                                        </p>
+                                                    </div>
+                                                    <span class="badge bg-success text-white">{{ result.medicine.discount|floatformat:0 }}% OFF</span>
+                                                {% else %}
+                                                    <p class="card-text mb-0">
+                                                        <span class="fw-bold">Price:</span>
+                                                        <span style="font-size: 1.2rem;">₹{{ result.medicine.price }}</span>
+                                                    </p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-primary text-white rounded-pill px-3 py-2 fs-6 fw-bold">{{ result.distance|floatformat:2 }} km</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="card mb-3 opacity-50">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="card-title mb-1"><i class="bi bi-capsule-pill me-2"></i>{{ result.medicine.name }}</h5>
+                                            <p class="card-text text-primary fw-bold mb-1"><i class="bi bi-shop me-2"></i>{{ result.medicine.shop.name }}</p>
+                                            <p class="card-text text-muted"><small><i class="bi bi-geo-alt-fill me-2"></i>{{ result.medicine.shop.address }}</small></p>
+                                            <span class="badge bg-secondary">Unavailable</span>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-primary text-white rounded-pill px-3 py-2 fs-6 fw-bold">{{ result.distance|floatformat:2 }} km</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center">
+                        <p class="text-muted">No results found for "{{ query }}" in "{{ location }}".</p>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+    var locationInput = document.getElementById('location-input');
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            // Use coordinates as location string
+            locationInput.value = position.coords.latitude + ',' + position.coords.longitude;
+        }, function(error) {
+            // If denied, fallback to manual entry (input remains editable)
+        });
+    }
+});
+</script>
+{% endblock %}

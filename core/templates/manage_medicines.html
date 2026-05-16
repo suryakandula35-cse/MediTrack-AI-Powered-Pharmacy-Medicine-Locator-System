@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="hero-section text-start ps-0">
+        <h1 class="display-5 fw-bold">Shopkeeper Dashboard</h1>
+        <p class="lead text-muted">Manage your medicines and shop status.</p>
+    </div>
+
+    <div class="row">
+        <!-- Shop Status and Add Medicine -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Shop Status</h5>
+                    {% if shop.is_open %}
+                        <p>Your shop is currently <span class="fw-bold text-success">Open</span>.</p>
+                        <form method="post" action="{% url 'toggle_shop_status' %}" class="d-grid">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-warning">Mark as Closed</button>
+                        </form>
+                    {% else %}
+                        <p>Your shop is currently <span class="fw-bold text-danger">Closed</span>.</p>
+                        <form method="post" action="{% url 'toggle_shop_status' %}" class="d-grid">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success">Mark as Open</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Add New Medicine Form -->
+        <div class="col-md-8 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Add a New Medicine</h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.name.label_tag }}
+                                {{ form.name }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.quantity.label_tag }}
+                                {{ form.quantity }}
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" name="add_medicine" class="btn btn-primary">Add Medicine</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medicine List -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Your Medicines</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for medicine in medicines %}
+                        <tr>
+                            <td>{{ medicine.name }}</td>
+                            <td>{{ medicine.quantity }}</td>
+                            <td>
+                                <form method="post" action="{% url 'delete_medicine' medicine.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">You have not added any medicines yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

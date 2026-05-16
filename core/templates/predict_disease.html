@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="hero-section text-center p-5 mb-5 glass-card">
+        <div class="floating-shapes">
+            <div class="floating-shape shape-1"></div>
+            <div class="floating-shape shape-2"></div>
+            <div class="floating-shape shape-3"></div>
+        </div>
+        <h1 class="display-4 fw-bold">MediTrack SYMPTOM CHECKER</h1>
+        <p class="lead text-muted">Describe your symptoms to get a possible diagnosis and medicine suggestion.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="glass-card mb-5">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="symptoms" class="form-label">Enter Your Symptoms</label>
+                        <textarea name="symptoms" class="form-control" rows="4" placeholder="e.g., headache, fever, cough">{{ symptoms }}</textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Predict Disease</button>
+                    </div>
+                </form>
+            </div>
+
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+
+            {% if prediction %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Prediction Result</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <h4 class="card-title">Predicted Disease: <span class="text-primary">{{ prediction }}</span></h4>
+                        <p class="card-text fs-5 mb-4">Suggested Medicine: <span class="fw-bold">{{ medicine }}</span></p>
+                        <hr>
+                        <p class="text-muted mb-0"><small><strong>Disclaimer:</strong> This is an AI-generated prediction and not a substitute for professional medical advice. Please consult a doctor for an accurate diagnosis.</small></p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
